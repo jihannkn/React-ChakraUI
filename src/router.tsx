@@ -9,6 +9,9 @@ import Category from './pages/category';
 import CreateCategory from './pages/category/create';
 import UpdateCategory from './pages/category/update';
 import DetailCategory from './pages/category/detail';
+import Login from './pages/auth/login';
+import Register from './pages/auth/register';
+import AuthLayout from './components/layouts/AuthLayout';
 
 
 const router = createBrowserRouter([
@@ -67,7 +70,21 @@ const router = createBrowserRouter([
             }
 
         ]
-    }
+    },
+    {
+        path: "/auth",
+        element: <AuthLayout />,
+        children: [
+            {
+                path: "login",
+                element: <Login />,
+            },
+            {
+                path: "register",
+                element: <Register />,
+            },
+        ],
+    },
   ]);
 
   export default router;
