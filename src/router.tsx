@@ -1,14 +1,15 @@
 import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from './components/layouts/MainLayout';
-import Home from './pages/home/Index';
-import Product from './pages/product/Index';
-import UpdateProduct from './pages/product/update/Index';
-import DetailProduct from './pages/product/detail/Index';
-import CreateCategory from './pages/category/create/Index';
-import Category from './pages/category/Index';
-import DetailCategory from './pages/category/detail/Index';
-import UpdateCategory from './pages/category/update/Index';
-import CreateProduct from './pages/product/create/Index';
+import Home from './pages/home';
+import Product from './pages/product';
+import CreateProduct from './pages/product/create';
+import UpdateProduct from './pages/product/update';
+import DetailProduct from './pages/product/detail';
+import Category from './pages/category';
+import CreateCategory from './pages/category/create';
+import UpdateCategory from './pages/category/update';
+import DetailCategory from './pages/category/detail';
+
 
 const router = createBrowserRouter([
     {
