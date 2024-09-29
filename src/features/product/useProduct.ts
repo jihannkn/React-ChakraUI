@@ -24,7 +24,7 @@ export const useProduct = () => {
         setState(prev => ({
           ...prev,
           pending: false,
-          error: error instanceof Error ? error : new Error("An error occurred while fetching the users"),
+          error: error instanceof Error ? error : new Error("An error occurred while fetching the products"),
         }))
       )
   }, []);
