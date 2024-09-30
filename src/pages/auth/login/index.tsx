@@ -9,7 +9,7 @@
 //         'gmail.com',
 //         'yahoo.com',
 //         'outlook.com',
-//         'icloud.com',h  
+//         'icloud.com',
 //         'hotmail.com',
 //     ]
 
@@ -132,23 +132,22 @@ export default function Login() {
 
   const onSubmit: SubmitHandler<loginType> = (data) => {
     console.log(data);
-    navigate('/product'); // Navigate to the products page after login
+    navigate('/product'); 
   };
 
   return (
     <Flex direction="column" align="center" justify="center" height="100vh">
       <Heading mb={6}>Login duluuu</Heading>
       <Box
-        border="2px solid black" // Border tegas untuk kotak form
+        border="2px solid black" 
         p="6"
-        boxShadow="5px 5px 0px black" // Shadow untuk kotak form
+        boxShadow="5px 5px 0px black" 
         maxWidth="400px"
         width="100%"
         borderRadius="0"
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <Flex direction="column" gap={6}>
-            {/* Email Input */}
             <FormControl isInvalid={!!errors.email}>
               <FormLabel>Email Address</FormLabel>
               <Input
@@ -157,10 +156,10 @@ export default function Login() {
                 placeholder="Email"
                 bg="white"
                 border="2px solid black"
-                borderRadius="0" // Flat corners for brutalism
+                borderRadius="0" 
                 px="4"
                 py="2"
-                boxShadow="5px 5px 0px black" // Shadow for brutalism effect
+                boxShadow="5px 5px 0px black" 
                 transition="transform 0.2s ease, box-shadow 0.2s ease"
                 _hover={{
                   transform: 'translate(5px, 5px)',
@@ -179,8 +178,6 @@ export default function Login() {
                 </FormHelperText>
               )}
             </FormControl>
-
-            {/* Password Input */}
             <FormControl isInvalid={!!errors.password}>
               <FormLabel>Password</FormLabel>
               <Input
@@ -189,10 +186,10 @@ export default function Login() {
                 placeholder="Password"
                 bg="white"
                 border="2px solid black"
-                borderRadius="0" // Flat corners for brutalism
+                borderRadius="0" 
                 px="4"
                 py="2"
-                boxShadow="5px 5px 0px black" // Shadow for brutalism effect
+                boxShadow="5px 5px 0px black" 
                 transition="transform 0.2s ease, box-shadow 0.2s ease"
                 _hover={{
                   transform: 'translate(5px, 5px)',
@@ -211,16 +208,14 @@ export default function Login() {
                 </FormHelperText>
               )}
             </FormControl>
-
-            {/* Submit Button */}
             <Button
               type="submit"
-              bg="blue.300" // Warna tombol
+              bg="blue.300" 
               color="black"
               border="2px solid black"
               borderRadius="0"
               fontWeight="bold"
-              boxShadow="5px 5px 0px black" // Shadow brutalism
+              boxShadow="5px 5px 0px black" 
               transition="transform 0.2s ease, box-shadow 0.2s ease"
               _hover={{
                 transform: 'translate(5px, 5px)',
