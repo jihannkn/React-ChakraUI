@@ -12,64 +12,71 @@ import DetailCategory from './pages/category/detail';
 import Login from './pages/auth/login';
 import Register from './pages/auth/register';
 import AuthLayout from './components/layouts/AuthLayout';
-
+import DashboardLayout from './components/layouts/DashboardLayout';
+import Dashboard from './pages/dashboard';
 
 const router = createBrowserRouter([
     {
-      path: "/",
-      element: <MainLayout />,
-      children: [
-        {
-          index: true,
-          element: <Home />,
-        },
-      ],
-    },
-    {
-        path: "/product",
+        path: "/",
         element: <MainLayout />,
-        children:[
+        children: [
             {
                 index: true,
-                element: <Product />
+                element: <Home />,
             },
-            {
-                path: "create",
-                element: <CreateProduct />
-            },
-            {
-                path: "update/:id",
-                element: <UpdateProduct />
-            },
-            {
-                path: "detail/:id",
-                element: <DetailProduct />
-            }
-
-        ]
+        ],
     },
     {
-        path: "/category",
-        element: <MainLayout />,
-        children:[
+        path: "/dashboard",
+        element: <DashboardLayout />,
+        children: [
             {
                 index: true,
-                element: <Category />
+                element: <Dashboard />,
             },
             {
-                path: "create",
-                element: <CreateCategory />
+                path: "product",
+                children: [
+                    {
+                        index: true,
+                        element: <Product />,
+                    },
+                    {
+                        path: "create",
+                        element: <CreateProduct />,
+                    },
+                    {
+                        path: "update/:id",
+                        element: <UpdateProduct />,
+                    },
+                    {
+                        path: "detail/:id",
+                        element: <DetailProduct />,
+                    },
+                ],
             },
             {
-                path: "update/:id",
-                element: <UpdateCategory />
+                path: "category",
+                children: [
+                    {
+                        index: true,
+                        element: <Category />,
+                    },
+                    {
+                        path: "create",
+                        element: <CreateCategory />,
+                    },
+                    {
+                        path: "update/:id",
+                        element: <UpdateCategory />,
+                    },
+                    {
+                        path: "detail/:id",
+                        element: <DetailCategory />,
+                    },
+                ],
             },
-            {
-                path: "detail/:id",
-                element: <DetailCategory />
-            }
-
-        ]
+        ],
     },
     {
         path: "/auth",
@@ -85,6 +92,6 @@ const router = createBrowserRouter([
             },
         ],
     },
-  ]);
+]);
 
-  export default router;
+export default router;
