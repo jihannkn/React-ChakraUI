@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   Thead,
@@ -10,11 +10,47 @@ import {
   Box,
   Button,
   Checkbox,
-  Avatar,
   Text,
 } from '@chakra-ui/react';
+import { Link } from 'react-router-dom'; 
+import { useMutationDeleteProduct } from '../../features/product/useMutationDeleteProduct'; // Import hook delete
+import { useProducts } from '../../features/product';
 
 export default function Product() {
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1); 
+  const { data, isLoading, error, totalPages } = useProducts(limit, page);
+
+  // Memanggil custom hook untuk delete product
+  const { mutate, pending, message, error: deleteError } = useMutationDeleteProduct();
+
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      setPage((prevPage) => prevPage - 1);
+    }
+  };
+
+  // Fungsi untuk menghapus produk
+  const handleDelete = (product) => {
+    if (window.confirm(`Are you sure you want to delete the product: ${product.name}?`)) {
+      mutate(product);
+    }
+  };
+
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text color="red.500">An error occurred: {error}</Text>;
+  }
+
   return (
     <Box p={5} bg="#f5f5f5" border="8px solid black">
       <TableContainer border="4px solid black">
@@ -32,77 +68,60 @@ export default function Product() {
             </Tr>
           </Thead>
           <Tbody>
-            <Tr bg="white" border="4px solid black">
-              <Td border="4px solid black">
-                <Checkbox />
-              </Td>
-              <Td border="4px solid black">
-                <Box display="flex" alignItems="center">
-                  <Avatar name="Annette Black" src="https://bit.ly/ryan-florence" size="sm" mr={3} border="3px solid black" />
-                  <Text fontWeight="bold" color="black">Annette Black</Text>
-                </Box>
-              </Td>
-              <Td border="4px solid black">Electronics</Td>
-              <Td border="4px solid black">Smartphone with 64GB storage</Td>
-              <Td border="4px solid black" isNumeric fontWeight="bold" color="green.600">$1,200.00</Td>
-              <Td border="4px solid black">
-                <Button colorScheme="black" variant="outline" border="4px solid black">View</Button>
-              </Td>
-            </Tr>
-            <Tr bg="white" border="4px solid black">
-              <Td border="4px solid black">
-                <Checkbox />
-              </Td>
-              <Td border="4px solid black">
-                <Box display="flex" alignItems="center">
-                  <Avatar name="Dianne Russell" src="https://bit.ly/kent-c-dodds" size="sm" mr={3} border="3px solid black" />
-                  <Text fontWeight="bold" color="black">Dianne Russell</Text>
-                </Box>
-              </Td>
-              <Td border="4px solid black">Clothing</Td>
-              <Td border="4px solid black">Winter jacket</Td>
-              <Td border="4px solid black" isNumeric fontWeight="bold" color="red.600">$800.00</Td>
-              <Td border="4px solid black">
-                <Button colorScheme="black" variant="outline" border="4px solid black">View</Button>
-              </Td>
-            </Tr>
-            <Tr bg="yellow.200" border="4px solid black">
-              <Td border="4px solid black">
-                <Checkbox defaultChecked />
-              </Td>
-              <Td border="4px solid black">
-                <Box display="flex" alignItems="center">
-                  <Avatar name="Courtney Henry" src="https://bit.ly/prosper-baba" size="sm" mr={3} border="3px solid black" />
-                  <Text fontWeight="bold" color="black">Courtney Henry</Text>
-                </Box>
-              </Td>
-              <Td border="4px solid black">Home Appliances</Td>
-              <Td border="4px solid black">Washing Machine</Td>
-              <Td border="4px solid black" isNumeric fontWeight="bold" color="green.600">$3,250.50</Td>
-              <Td border="4px solid black">
-                <Button colorScheme="black" variant="outline" border="4px solid black">View</Button>
-              </Td>
-            </Tr>
-            <Tr bg="white" border="4px solid black">
-              <Td border="4px solid black">
-                <Checkbox />
-              </Td>
-              <Td border="4px solid black">
-                <Box display="flex" alignItems="center">
-                  <Avatar name="Wade Warren" src="https://bit.ly/sage-adebayo" size="sm" mr={3} border="3px solid black" />
-                  <Text fontWeight="bold" color="black">Wade Warren</Text>
-                </Box>
-              </Td>
-              <Td border="4px solid black">Furniture</Td>
-              <Td border="4px solid black">Modern chair</Td>
-              <Td border="4px solid black" isNumeric fontWeight="bold" color="red.600">$250.00</Td>
-              <Td border="4px solid black">
-                <Button colorScheme="black" variant="outline" border="4px solid black">View</Button>
-              </Td>
-            </Tr>
+            {data?.map((product) => (
+              <Tr key={product.id} bg="white" border="4px solid black">
+                <Td border="4px solid black">
+                  <Checkbox />
+                </Td>
+                <Td border="4px solid black">{product.name}</Td>
+                <Td border="4px solid black">{product.category.name}</Td>
+                <Td border="4px solid black">{product.description}</Td>
+                <Td border="4px solid black" isNumeric fontWeight="bold" color="green.600">
+                  ${product.price.toFixed(2)}
+                </Td>
+                <Td border="4px solid black">
+                  {/* Link ke halaman detail */}
+                  <Link to={`/dashboard/product/detail/${product.id}`}>
+                    <Button
+                      colorScheme="blue"
+                      variant="outline"
+                      border="4px solid black"
+                      mr={2} 
+                    >
+                      Detail
+                    </Button>
+                  </Link>
+                  {/* Tombol Delete */}
+                  <Button
+                    colorScheme="red"
+                    variant="outline"
+                    border="4px solid black"
+                    onClick={() => handleDelete(product)}
+                    isLoading={pending} // Tambahkan feedback loading saat proses delete
+                  >
+                    Delete
+                  </Button>
+                </Td>
+              </Tr>
+            ))}
           </Tbody>
         </Table>
       </TableContainer>
+
+      {/* Pagination Controls */}
+      <Box mt={4} display="flex" justifyContent="space-between">
+        <Button onClick={handlePrevPage} disabled={page === 1}>
+          Previous
+        </Button>
+        <Text>Page {page} of {totalPages}</Text>
+        <Button onClick={handleNextPage} disabled={page === totalPages}>
+          Next
+        </Button>
+      </Box>
+
+      {/* Menampilkan pesan jika ada */}
+      {message && <Text mt={4} color="green.500">{message}</Text>}
+      {deleteError && <Text mt={4} color="red.500">Error: {deleteError.message}</Text>}
     </Box>
   );
 }
