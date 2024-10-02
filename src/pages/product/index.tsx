@@ -11,21 +11,23 @@ import {
   Button,
   Checkbox,
   Text,
+  Flex,
+  Spinner,
+  Alert,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom'; 
-import { useMutationDeleteProduct } from '../../features/product/useMutationDeleteProduct'; // Import hook delete
+import { useMutationDeleteProduct } from '../../features/product/useMutationDeleteProduct';
 import { useProducts } from '../../features/product';
 
 export default function Product() {
-  const [limit, setLimit] = useState(10);
+  const [limit] = useState(10);
   const [page, setPage] = useState(1); 
-  const { data, isLoading, error, totalPages } = useProducts(limit, page);
 
-  // Memanggil custom hook untuk delete product
-  const { mutate, pending, message, error: deleteError } = useMutationDeleteProduct();
+  const { data, isLoading, error } = useProducts(limit, page);
+  const { mutate, pending } = useMutationDeleteProduct();
 
   const handleNextPage = () => {
-    if (page < totalPages) {
+    if (page < (data?.totalPages || 1)) {
       setPage((prevPage) => prevPage + 1);
     }
   };
@@ -36,7 +38,6 @@ export default function Product() {
     }
   };
 
-  // Fungsi untuk menghapus produk
   const handleDelete = (product) => {
     if (window.confirm(`Are you sure you want to delete the product: ${product.name}?`)) {
       mutate(product);
@@ -44,11 +45,19 @@ export default function Product() {
   };
 
   if (isLoading) {
-    return <Text>Loading...</Text>;
+    return (
+      <Flex w={"100%"} h={"100vh"} justifyContent={"center"} alignItems={"center"}>
+        <Spinner size="xl" />
+      </Flex>
+    );
   }
 
   if (error) {
-    return <Text color="red.500">An error occurred: {error}</Text>;
+    return (
+      <Flex w={"100%"} h={"100vh"} justifyContent={"center"} alignItems={"center"}>
+        <Alert status="error">{error.message || 'Unknown error'}</Alert>
+      </Flex>
+    );
   }
 
   return (
@@ -68,7 +77,7 @@ export default function Product() {
             </Tr>
           </Thead>
           <Tbody>
-            {data?.map((product) => (
+            {data?.data.products.map((product) => (
               <Tr key={product.id} bg="white" border="4px solid black">
                 <Td border="4px solid black">
                   <Checkbox />
@@ -80,7 +89,6 @@ export default function Product() {
                   ${product.price.toFixed(2)}
                 </Td>
                 <Td border="4px solid black">
-                  {/* Link ke halaman detail */}
                   <Link to={`/dashboard/product/detail/${product.id}`}>
                     <Button
                       colorScheme="blue"
@@ -91,13 +99,12 @@ export default function Product() {
                       Detail
                     </Button>
                   </Link>
-                  {/* Tombol Delete */}
                   <Button
                     colorScheme="red"
                     variant="outline"
                     border="4px solid black"
                     onClick={() => handleDelete(product)}
-                    isLoading={pending} // Tambahkan feedback loading saat proses delete
+                    isLoading={pending}
                   >
                     Delete
                   </Button>
@@ -108,20 +115,15 @@ export default function Product() {
         </Table>
       </TableContainer>
 
-      {/* Pagination Controls */}
       <Box mt={4} display="flex" justifyContent="space-between">
         <Button onClick={handlePrevPage} disabled={page === 1}>
           Previous
         </Button>
-        <Text>Page {page} of {totalPages}</Text>
-        <Button onClick={handleNextPage} disabled={page === totalPages}>
+        <Text>Page {page} of {data?.totalPages}</Text>
+        <Button onClick={handleNextPage} disabled={page === (data?.totalPages || 1)}>
           Next
         </Button>
       </Box>
-
-      {/* Menampilkan pesan jika ada */}
-      {message && <Text mt={4} color="green.500">{message}</Text>}
-      {deleteError && <Text mt={4} color="red.500">Error: {deleteError.message}</Text>}
     </Box>
   );
 }
