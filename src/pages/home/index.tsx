@@ -3,16 +3,17 @@ import { FiArrowRight } from "react-icons/fi";
 import ProductCard from "../../components/elements/ProductCard";
 import { useState } from "react";
 import { useProducts } from "../../features/product";
+import Pagination from "../../components/elements/Pagination";
 
 export default function Home() {
-  const [page] = useState(1);
+  const [page, setPage] = useState(1);
   const [limit] = useState(10); // Set your limit per page
   const [refreshTrigger] = useState(0);
 
   // Use the useProducts hook to fetch data
   const { data, isLoading, error } = useProducts(limit, page, refreshTrigger);
 
-  
+  const totalPages = data?.totalPages || 1;
 
   // Render loading state
   if (isLoading) {
@@ -133,7 +134,7 @@ export default function Home() {
         </Grid>
       </Box>
       
-      <Box pt={14} px={4} bg="#f3f4f6">
+      <Box mt={14} px={4}>
       {/* Heading */}
       <Heading 
         as="h1" 
@@ -169,6 +170,7 @@ export default function Home() {
         )}
       </Grid>
     </Box>
+
 
       {/* Pagination Component */}
       <Box mt={8}>
