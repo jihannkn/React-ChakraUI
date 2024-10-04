@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
-import { useFormik } from "formik";
-import * as Yup from "yup";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import {
   Box,
@@ -10,50 +11,76 @@ import {
   Flex,
   Heading,
   Input,
-  Textarea,
   VStack,
   FormControl,
   FormLabel,
   Text,
   Select,
+  useToast,
 } from "@chakra-ui/react";
 import { useMutationCreateProduct } from '../../../features/product';
+import { Category } from '../../../types';
+import { useCategories } from '../../../features/category';
 
-export default function DashboardProductCreate() {
-  const { mutate } = useMutationCreateProduct();
+const ProductSchema = z.object({
+  name: z.string()
+    .min(3, "Minimal 3 characters")
+    .max(16, "Maximum 16 characters"),
+  price: z.number()
+    .min(0, "Price must be greater than or equal to 0"),
+  category_id: z.string().nonempty("Category is required"),
+  description: z.string()
+    .min(3, "Minimal 3 characters")
+    .max(35, "Maximum 35 characters"),
+  image: z.string().url("Invalid URL"),
+});
+
+type ProductSchemaType = z.infer<typeof ProductSchema>;
+
+export default function CreateProduct() {
+  const { mutate, pending } = useMutationCreateProduct();
+  const { data: categories } = useCategories(10, 1);
   const navigate = useNavigate();
+  const toast = useToast();
 
-  const ProductSchema = Yup.object().shape({
-    name: Yup.string()
-      .min(3, "Minimal 3 characters")
-      .max(16, "Maximum 16 characters")
-      .required("Required"),
-    price: Yup.number()
-      .min(0, "Price must be greater than or equal to 0")
-      .required("Required"),
-    category: Yup.string().required("Required"), // Category sebagai wajib diisi
-    description: Yup.string()
-      .min(3, "Minimal 3 characters")
-      .max(35, "Maximum 35 characters")
-      .required("Required"),
-    image: Yup.string().url("Invalid URL").required("Required"),
-  });
-
-  const formik = useFormik({
-    initialValues: {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ProductSchemaType>({
+    resolver: zodResolver(ProductSchema),
+    defaultValues: {
       name: "",
-      price: "",
-      category: "",
+      price: 0,
+      category_id: "",
       description: "",
       image: "",
     },
-    validationSchema: ProductSchema,
-    onSubmit: (values, { resetForm }) => {
-      mutate({ ...values, price: Number(values.price) });
-      resetForm();
-      navigate("/dashboard/product");
-    },
   });
+
+  const onSubmit = async (values: ProductSchemaType) => {
+    try {
+      await mutate(values);
+      toast({
+        title: "Product created",
+        description: "Product successfully created",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      reset();
+      navigate("/dashboard/product");
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err.message || "An error occurred while creating the product",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <Box p={6} bg="gray.100" minHeight="100vh">
@@ -68,128 +95,119 @@ export default function DashboardProductCreate() {
         mx="auto"
       >
         <Flex justify="center" mb={6}>
-          <Heading size="lg">Create Product</Heading>
+          <Heading size="lg">Create New Product</Heading>
         </Flex>
 
-        <form onSubmit={formik.handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <VStack spacing={4}>
-            <FormControl isInvalid={formik.touched.name && Boolean(formik.errors.name)}>
-              <FormLabel>Your Name</FormLabel>
+            <FormControl isInvalid={!!errors.name}>
+              <FormLabel>Product Name</FormLabel>
               <Input
-                type="text"
-                name="name"
+                {...register("name")}
                 placeholder="Type product name"
-                onChange={formik.handleChange}
-                value={formik.values.name}
                 bg="gray.50"
                 borderColor="black"
                 borderWidth="2px"
                 borderRadius="0"
                 _focus={{ borderColor: 'blue.500', boxShadow: 'none' }}
               />
-              {formik.errors.name && formik.touched.name && (
-                <Text color="red.500">{formik.errors.name}</Text>
+              {errors.name && (
+                <Text color="red.500">{errors.name.message}</Text>
               )}
             </FormControl>
 
-            <FormControl isInvalid={formik.touched.price && Boolean(formik.errors.price)}>
-              <FormLabel>Your Price</FormLabel>
+            <FormControl isInvalid={!!errors.price}>
+              <FormLabel>Price</FormLabel>
               <Input
-                type="text"
-                name="price"
+                {...register("price", { valueAsNumber: true })}
                 placeholder="Price"
-                onChange={formik.handleChange}
-                value={formik.values.price}
+                type="number"
                 bg="gray.50"
                 borderColor="black"
                 borderWidth="2px"
                 borderRadius="0"
                 _focus={{ borderColor: 'blue.500', boxShadow: 'none' }}
               />
-              {formik.errors.price && formik.touched.price && (
-                <Text color="red.500">{formik.errors.price}</Text>
+              {errors.price && (
+                <Text color="red.500">{errors.price.message}</Text>
               )}
             </FormControl>
 
-            <FormControl isInvalid={formik.touched.category && Boolean(formik.errors.category)}>
+            <FormControl isInvalid={!!errors.category_id}>
               <FormLabel>Category</FormLabel>
               <Select
-                name="category"
+                {...register("category_id")}
                 placeholder="Select category"
-                onChange={formik.handleChange}
-                value={formik.values.category}
                 bg="gray.50"
                 borderColor="black"
                 borderWidth="2px"
                 borderRadius="0"
                 _focus={{ borderColor: 'blue.500', boxShadow: 'none' }}
               >
-                <option value="electronics">Electronics</option>
-                <option value="furniture">Furniture</option>
-                <option value="clothing">Clothing</option>
-                <option value="books">Books</option>
+                {categories?.data?.categories.map((category: Category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
               </Select>
-              {formik.errors.category && formik.touched.category && (
-                <Text color="red.500">{formik.errors.category}</Text>
+              {errors.category_id && (
+                <Text color="red.500">{errors.category_id.message}</Text>
               )}
             </FormControl>
 
-            <FormControl isInvalid={formik.touched.description && Boolean(formik.errors.description)}>
-              <FormLabel>Your Message</FormLabel>
-              <Textarea
+            <FormControl isInvalid={!!errors.description}>
+              <FormLabel>Description</FormLabel>
+              <Input
+                {...register("description")}
                 placeholder="Write description here"
-                name="description"
-                onChange={formik.handleChange}
-                value={formik.values.description}
                 bg="gray.50"
                 borderColor="black"
                 borderWidth="2px"
                 borderRadius="0"
                 _focus={{ borderColor: 'blue.500', boxShadow: 'none' }}
               />
-              {formik.errors.description && formik.touched.description && (
-                <Text color="red.500">{formik.errors.description}</Text>
+              {errors.description && (
+                <Text color="red.500">{errors.description.message}</Text>
               )}
             </FormControl>
 
-            <FormControl isInvalid={formik.touched.image && Boolean(formik.errors.image)}>
+            <FormControl isInvalid={!!errors.image}>
               <FormLabel>Product Image</FormLabel>
               <Input
-                type="text"
-                name="image"
+                {...register("image")}
                 placeholder="Image URL"
-                onChange={formik.handleChange}
-                value={formik.values.image}
                 bg="gray.50"
                 borderColor="black"
                 borderWidth="2px"
                 borderRadius="0"
                 _focus={{ borderColor: 'blue.500', boxShadow: 'none' }}
               />
-              {formik.errors.image && formik.touched.image && (
-                <Text color="red.500">{formik.errors.image}</Text>
+              {errors.image && (
+                <Text color="red.500">{errors.image.message}</Text>
               )}
             </FormControl>
 
             <Button
               type="submit"
-              bg="red.500" // Warna latar belakang biru
-              color="#000" // Warna teks hitam
-              border="2px solid black" // Garis tegas hitam
-              borderRadius="0" // Sudut kotak yang tajam
-              boxShadow="5px 5px 0px black" // Bayangan hitam menjorok
+              leftIcon={<FaPlus />}
+              bg="red.500"
+              color="#000"
+              border="2px solid black"
+              borderRadius="0"
+              boxShadow="5px 5px 0px black"
               _hover={{
-                transform: "translate(5px, 5px)", // Tombol bergerak saat hover
-                boxShadow: "0px 0px 0px black", // Menghapus bayangan saat hover
+                transform: "translate(5px, 5px)",
+                boxShadow: "0px 0px 0px black",
               }}
               _active={{
-                transform: "translate(2px, 2px)", // Tombol bergerak sedikit saat ditekan
-                boxShadow: "inset 2px 2px 0px black", // Bayangan masuk ke dalam
+                transform: "translate(2px, 2px)",
+                boxShadow: "inset 2px 2px 0px black",
               }}
               width="full"
               mt={4}
+              isLoading={pending}
             >
-              <FaPlus className="mr-2" /> Create Product
+              Create Product
             </Button>
           </VStack>
         </form>

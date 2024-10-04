@@ -7,6 +7,7 @@ export type Product = {
     price: number;
 }
 
+
 export type Category = {
     id?: string;
     name: string;

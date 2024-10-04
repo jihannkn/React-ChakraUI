@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Table,
   Thead,
@@ -14,6 +14,7 @@ import {
   Flex,
   Spinner,
   Alert,
+  useToast,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom'; 
 import { useMutationDeleteCategory } from '../../features/category/useMutationDeleteCategory'; 
@@ -22,8 +23,10 @@ import { useCategories } from '../../features/category';
 export default function Category() {
   const [limit] = useState(10);
   const [page, setPage] = useState(1); 
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const toast = useToast();
 
-  const { data, isLoading, error } = useCategories(limit, page);
+  const { data, isLoading, error } = useCategories(limit, page, refreshTrigger);
   const { mutate, pending } = useMutationDeleteCategory();
 
   const handleNextPage = () => {
@@ -38,9 +41,31 @@ export default function Category() {
     }
   };
 
-  const handleDelete = (category) => {
+  const refreshCategories = useCallback(() => {
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
+
+  const handleDelete = async (category) => {
     if (window.confirm(`Are you sure you want to delete the category: ${category.name}?`)) {
-      mutate(category);
+      try {
+        await mutate(category);
+        toast({
+          title: "Category deleted",
+          description: `${category.name} has been successfully deleted.`,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        refreshCategories();
+      } catch (error) {
+        toast({
+          title: "Delete failed",
+          description: error.message || "An error occurred while deleting the category.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     }
   };
 

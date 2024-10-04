@@ -4,7 +4,7 @@ import axiosInstance from "../../libs/axios";
 
 interface ProductState {
     data: {
-        products: Product[]; 
+        products: Product[] | null; 
         total: number; 
         totalPages: number; 
         page: number; 
@@ -15,7 +15,7 @@ interface ProductState {
     status: string; 
 }
 
-export const useProducts = (limit: number, page: number): ProductState => {
+export const useProducts = (limit: number, page: number, refreshTrigger: number): ProductState => {
     const [state, setState] = useState<ProductState>({
         data: null, 
         isLoading: false, 
@@ -49,7 +49,7 @@ export const useProducts = (limit: number, page: number): ProductState => {
         };
 
         fetchProducts();
-    }, [limit, page]);
+    }, [limit, page, refreshTrigger]);
 
     return state;
 };

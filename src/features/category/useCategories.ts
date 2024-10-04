@@ -4,7 +4,7 @@ import axiosInstance from "../../libs/axios";
 
 interface CategoryState {
     data: {
-        categories: Category[];
+        categories: Category[] | null;
         total: number;
         totalPages: number;
         page: number;
@@ -15,7 +15,7 @@ interface CategoryState {
     status: string;
 }
 
-export const useCategories = (limit: number, page: number): CategoryState => {
+export const useCategories = (limit: number, page: number, refreshTrigger: number): CategoryState => {
     const [state, setState] = useState<CategoryState>({
         data: null,
         isLoading: false,
@@ -49,7 +49,7 @@ export const useCategories = (limit: number, page: number): CategoryState => {
         };
 
         fetchCategory();
-    }, [limit, page]);
+    }, [limit, page, refreshTrigger]);
 
     return state;
 };

@@ -13,22 +13,57 @@ import {
   Alert,
   AlertIcon,
   Divider,
+  useToast,
 } from "@chakra-ui/react";
-import { useMutationDeleteProduct, useProductID } from "../../../features/product";
+import {
+  useMutationDeleteProduct,
+  useProductID,
+} from "../../../features/product";
 
 export default function DetailProduct() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const toast = useToast();
 
   const { data: product, error } = useProductID(id);
   const { mutate } = useMutationDeleteProduct();
 
-  if (error) return (
-    <Alert status="error" mb={4}>
-      <AlertIcon />
-      Error: {error.message}
-    </Alert>
-  );
+  const handleDelete = async () => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete the product: ${product.name}?`
+      )
+    ) {
+      try {
+        await mutate(product);
+        toast({
+          title: "Product deleted",
+          description: `${product.name} has been successfully deleted.`,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        navigate("/dashboard/product"); 
+      } catch (error) {
+        toast({
+          title: "Delete failed",
+          description:
+            error.message || "An error occurred while deleting the product.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    }
+  };
+
+  if (error)
+    return (
+      <Alert status="error" mb={4}>
+        <AlertIcon />
+        Error: {error.message}
+      </Alert>
+    );
   if (!product) return <Text>No Product Found</Text>;
 
   return (
@@ -40,11 +75,11 @@ export default function DetailProduct() {
         borderColor="black"
         borderRadius="md"
         boxShadow="md"
-        position="relative"
-      >
+        position="relative">
         <Flex mb={4} alignItems="center">
           <Button
             onClick={() => navigate("/dashboard/product")}
+            leftIcon={<IoArrowBack />}
             bg={"#00ccff"}
             color={"#000"}
             borderRadius={"0"}
@@ -60,14 +95,21 @@ export default function DetailProduct() {
             _active={{
               transform: "translate(2px, 2px)",
               boxShadow: "inset 2px 2px 0px black",
-            }}
-          >
+            }}>
             Back
           </Button>
         </Flex>
 
-        <Flex direction={{ base: "column", lg: "row" }} justify="space-between" mb={4}>
-          <Box flex="1" mb={{ base: 4, lg: 0 }} borderWidth={2} borderColor="black" borderRadius="md">
+        <Flex
+          direction={{ base: "column", lg: "row" }}
+          justify="space-between"
+          mb={4}>
+          <Box
+            flex="1"
+            mb={{ base: 4, lg: 0 }}
+            borderWidth={2}
+            borderColor="black"
+            borderRadius="md">
             <Image
               src={product.image || "https://via.placeholder.com/150"}
               alt={product.name}
@@ -81,14 +123,26 @@ export default function DetailProduct() {
           </Box>
 
           <VStack flex="1" spacing={4} align="start" ml={{ lg: 8 }}>
-            <Heading size="lg" color="black" borderBottom="2px solid black" pb={2}>{product.name}</Heading>
-            <Text color="black" fontWeight="bold">Category:</Text>
+            <Heading
+              size="lg"
+              color="black"
+              borderBottom="2px solid black"
+              pb={2}>
+              {product.name}
+            </Heading>
+            <Text color="black" fontWeight="bold">
+              Category:
+            </Text>
             <Text color="blue.600">{product.category.name}</Text>
             <Divider borderColor="black" />
-            <Text color="black" fontWeight="bold">Description:</Text>
+            <Text color="black" fontWeight="bold">
+              Description:
+            </Text>
             <Text color="gray.700">{product.description}</Text>
             <Divider borderColor="black" />
-            <Text fontWeight="bold" color="black">Price</Text>
+            <Text fontWeight="bold" color="black">
+              Price
+            </Text>
             <Text fontSize="2xl" color="blue.600">
               ${product.price}
             </Text>
@@ -97,7 +151,7 @@ export default function DetailProduct() {
               <Button
                 flex="1"
                 rightIcon={<TbEdit />}
-                bg={"#4CAF50"} // Warna tombol Edit (Hijau)
+                bg={"#4CAF50"}
                 color={"#000"}
                 borderRadius={"0"}
                 border={"2px solid #000"}
@@ -113,15 +167,14 @@ export default function DetailProduct() {
                   transform: "translate(2px, 2px)",
                   boxShadow: "inset 2px 2px 0px black",
                 }}
-                onClick={() => navigate(`/dashboard/update/${id}`)}
-              >
+                onClick={() => navigate(`/dashboard/product/update/${id}`)}>
                 Update
               </Button>
 
               <Button
                 flex="1"
                 rightIcon={<FaTrashAlt />}
-                bg={"#f44336"} // Warna tombol Delete (Merah)
+                bg={"#f44336"}
                 color={"#000"}
                 borderRadius={"0"}
                 border={"2px solid #000"}
@@ -137,8 +190,7 @@ export default function DetailProduct() {
                   transform: "translate(2px, 2px)",
                   boxShadow: "inset 2px 2px 0px black",
                 }}
-                onClick={() => mutate(id)}
-              >
+                onClick={handleDelete}>
                 Delete
               </Button>
             </Flex>

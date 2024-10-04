@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Table,
   Thead,
@@ -14,6 +14,7 @@ import {
   Flex,
   Spinner,
   Alert,
+  useToast,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom'; 
 import { useMutationDeleteProduct } from '../../features/product/useMutationDeleteProduct';
@@ -22,8 +23,10 @@ import { useProducts } from '../../features/product';
 export default function Product() {
   const [limit] = useState(10);
   const [page, setPage] = useState(1); 
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const toast = useToast();
 
-  const { data, isLoading, error } = useProducts(limit, page);
+  const { data, isLoading, error } = useProducts(limit, page, refreshTrigger);
   const { mutate, pending } = useMutationDeleteProduct();
 
   const handleNextPage = () => {
@@ -38,9 +41,31 @@ export default function Product() {
     }
   };
 
-  const handleDelete = (product) => {
+  const refreshProducts = useCallback(() => {
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
+
+  const handleDelete = async (product) => {
     if (window.confirm(`Are you sure you want to delete the product: ${product.name}?`)) {
-      mutate(product);
+      try {
+        await mutate(product);
+        toast({
+          title: "Product deleted",
+          description: `${product.name} has been successfully deleted.`,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        refreshProducts();
+      } catch (error) {
+        toast({
+          title: "Delete failed",
+          description: error.message || "An error occurred while deleting the product.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     }
   };
 
@@ -83,10 +108,10 @@ export default function Product() {
                   <Checkbox />
                 </Td>
                 <Td border="4px solid black">{product.name}</Td>
-                <Td border="4px solid black">{product.category.name}</Td>
+                <Td border="4px solid black">{product.category?.name}</Td>
                 <Td border="4px solid black">{product.description}</Td>
                 <Td border="4px solid black" isNumeric fontWeight="bold" color="green.600">
-                  ${product.price.toFixed(2)}
+                  ${product.price}
                 </Td>
                 <Td border="4px solid black">
                   <Link to={`/dashboard/product/detail/${product.id}`}>
