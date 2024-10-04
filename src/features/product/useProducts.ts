@@ -1,40 +1,55 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react"; 
+import { Product } from "../../types";
 import axiosInstance from "../../libs/axios";
 
-export const useProducts = (limit: number, page: number) => {
-  const [state, setState] = useState({
-    data: [],
-    isLoading: true,
-    error: null,
-    totalPages: 1,
-  });
+interface ProductState {
+    data: {
+        products: Product[] | null; 
+        total: number; 
+        totalPages: number; 
+        page: number; 
+    } | null; 
+    isLoading: boolean; 
+    error: Error | null; 
+    message: string; 
+    status: string; 
+}
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+export const useProducts = (limit: number, page: number, refreshTrigger: number): ProductState => {
+    const [state, setState] = useState<ProductState>({
+        data: null, 
+        isLoading: false, 
+        error: null, 
+        message: '', 
+        status: '' 
+    });
 
-      try {
-        const response = await axiosInstance.get(`/products`, {
-          params: { limit, page },
-        });
-        setState({
-          data: response.data.data.products,
-          isLoading: false,
-          error: null,
-          totalPages: Math.ceil(response.data.data.total / limit),
-        });
-      } catch (error) {
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          error:
-            error instanceof Error ? error : new Error("An error occurred"),
-        }));
-      }
-    };
+    useEffect(() => {
+        const fetchProducts = async () => {
+            setState(prev => ({ ...prev, isLoading: true }));
+            try {
+                const response = await axiosInstance.get(`/products`, {
+                    params: { limit, page }
+                });
+                const totalPages = Math.ceil(response.data.data.total / limit);
+                setState({
+                    data: { ...response.data, totalPages },
+                    isLoading: false,
+                    error: null,
+                    message: response.data.message,
+                    status: response.data.status
+                });
+            } catch (err) {
+                setState(prev => ({
+                    ...prev,
+                    isLoading: false,
+                    error: err instanceof Error ? err : new Error('An error occurred while fetching products'),
+                }));
+            }
+        };
 
-    fetchProducts();
-  }, [limit, page]);
+        fetchProducts();
+    }, [limit, page, refreshTrigger]);
 
-  return state;
+    return state;
 };
