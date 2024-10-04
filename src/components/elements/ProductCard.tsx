@@ -9,7 +9,7 @@ const ProductCard = () => {
       justifyContent="center"
       alignItems="center"
       p={5}
-      bg="#F7FAFC"// Background untuk seluruh wrapper
+      bg="#f3f4f6"// Background untuk seluruh wrapper
       height="100vh"
     >
       {/* Card Produk */}

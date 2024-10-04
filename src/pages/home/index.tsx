@@ -1,11 +1,39 @@
-import { Box, Button, Flex, Heading, Stack, Text, Grid, GridItem, Image, ChakraProvider } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Stack, Text, Grid, GridItem, Image, ChakraProvider, Spinner, Alert } from "@chakra-ui/react";
 import { FiArrowRight } from "react-icons/fi";
 import ProductCard from "../../components/elements/ProductCard";
+import { useState } from "react";
+import { useProducts } from "../../features/product";
 
 export default function Home() {
+  const [page] = useState(1);
+  const [limit] = useState(10); // Set your limit per page
+  const [refreshTrigger] = useState(0);
+
+  // Use the useProducts hook to fetch data
+  const { data, isLoading, error } = useProducts(limit, page, refreshTrigger);
+
+  
+
+  // Render loading state
+  if (isLoading) {
+    return (
+      <Flex w={"100%"} h={"100vh"} justifyContent={"center"} alignItems={"center"}>
+        <Spinner size="xl" />
+      </Flex>
+    );
+  }
+
+  // Render error state
+  if (error) {
+    return (
+      <Flex w={"100%"} h={"100vh"} justifyContent={"center"} alignItems={"center"}>
+        <Alert status="error">{error.message || "Unknown error"}</Alert>
+      </Flex>
+    );
+  }
   return (
     <ChakraProvider>
-      <Box bg="##F7FAFC" height="100vh" display="flex" alignItems="center" position="relative" px={8}>
+      <Box bg="#f3f4f6" height="100vh" display="flex" alignItems="center" position="relative" px={8}>
         {/* Grid Container */}
         <Grid
           templateColumns={{ base: "1fr", md: "1fr 1fr" }}
@@ -104,9 +132,47 @@ export default function Home() {
           </GridItem>
         </Grid>
       </Box>
-      {/* ProductCard Section (Bisa Diganti dengan Content Lain) */}
-      <Box py={8} bg="#F7FAFC">
-        <ProductCard />
+      
+      <Box pt={14} px={4} bg="#f3f4f6">
+      {/* Heading */}
+      <Heading 
+        as="h1" 
+        fontSize="2.3rem" 
+        fontWeight="bold" 
+        mb={4} 
+        textAlign="center"
+      >
+        Our Products
+      </Heading>
+
+      {/* Product Grid */}
+      <Grid 
+        templateColumns={{
+          base: "repeat(1, 1fr)",  // For small screens (mobile)
+          sm: "repeat(2, 1fr)",    // For small devices
+          md: "repeat(3, 1fr)",    // For medium devices
+          lg: "repeat(4, 1fr)",    // For large devices
+          xl: "repeat(5, 1fr)",    // For extra-large devices
+        }} 
+        gap={3}
+      >
+        {data?.data?.products.length > 0 ? (
+          data.data.products.map((product) => (
+            <GridItem key={product.id}>
+              <ProductCard product={product} />
+            </GridItem>
+          ))
+        ) : (
+          <Text fontSize="xl" color="red.500">
+            No Products Available
+          </Text>
+        )}
+      </Grid>
+    </Box>
+
+      {/* Pagination Component */}
+      <Box mt={8}>
+        <Pagination page={page} totalPages={totalPages} setPage={setPage} />
       </Box>
     </ChakraProvider>
   );
