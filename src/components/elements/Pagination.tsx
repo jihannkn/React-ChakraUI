@@ -12,7 +12,7 @@ export default function Pagination({ page, totalPages, setPage }) {
   };
 
   return (
-    <Flex justify="center" align="center" mt={8} gap={4} role="navigation" aria-label="Pagination">
+    <Flex justify="center" align="center" pt={8} gap={4} role="navigation" aria-label="Pagination" bg="#f3f4f6">
       {/* Previous Button */}
       <Link to={`${pathname}?page=${page - 1}`} onClick={() => handlePageChange(page - 1)}>
         <Button

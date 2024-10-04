@@ -134,7 +134,7 @@ export default function Home() {
         </Grid>
       </Box>
       
-      <Box mt={14} px={4}>
+      <Box pt={14} px={4} bg="#f3f4f6">
       {/* Heading */}
       <Heading 
         as="h1" 
@@ -171,9 +171,8 @@ export default function Home() {
       </Grid>
     </Box>
 
-
       {/* Pagination Component */}
-      <Box mt={8}>
+      <Box>
         <Pagination page={page} totalPages={totalPages} setPage={setPage} />
       </Box>
     </ChakraProvider>
