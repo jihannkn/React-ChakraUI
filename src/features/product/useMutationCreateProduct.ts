@@ -7,7 +7,7 @@ export const useMutationCreateProduct = (): ProductResponse => {
     data: null,
     pending: false,  
     error: null,
-    message: '',
+    message: '',                                             
     status: ''
   });
 

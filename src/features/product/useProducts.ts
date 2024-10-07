@@ -12,7 +12,7 @@ interface ProductState {
     isLoading: boolean; 
     error: Error | null; 
     message: string; 
-    status: string; 
+    status: string;
 }
 
 export const useProducts = (limit: number, page: number, refreshTrigger: number): ProductState => {
@@ -21,7 +21,7 @@ export const useProducts = (limit: number, page: number, refreshTrigger: number)
         isLoading: false, 
         error: null, 
         message: '', 
-        status: '' 
+        status: ''
     });
 
     useEffect(() => {

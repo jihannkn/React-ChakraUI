@@ -1,15 +1,14 @@
 import { Box, Image, Text, Button, HStack, Grid, GridItem } from '@chakra-ui/react';
+import { Product } from '../../types';
 
-const ProductCard = () => {
-    
-
+const ProductCard = ({ product }: { product: Product }) => {
   return (
     <Box
       d="flex"
       justifyContent="center"
       alignItems="center"
       p={5}
-      bg="#F7FAFC"// Background untuk seluruh wrapper
+      bg="#f3f4f6" // Background untuk seluruh wrapper
       height="100vh"
     >
       {/* Card Produk */}
@@ -36,7 +35,7 @@ const ProductCard = () => {
       >
         {/* Gambar Produk */}
         <Image
-          src="https://via.placeholder.com/350x200"
+          src={product.image}
           alt="Product Image"
           objectFit="cover"
           borderBottom="2px solid black"
@@ -47,28 +46,28 @@ const ProductCard = () => {
           {/* Nama Produk */}
           <GridItem colSpan={2}>
             <Text fontSize="2xl" textTransform="uppercase" border="2px solid black" p={2}>
-              Awesome Product
+              {product.name}
             </Text>
           </GridItem>
 
           {/* Kategori */}
           <GridItem>
             <Text fontSize="md" color="black" bg="yellow.300" p={2} border="2px solid black">
-              Category: Electronics
+              {product.category?.name}
             </Text>
           </GridItem>
 
           {/* Harga */}
           <GridItem>
             <Text fontSize="lg" fontWeight="bold" color="black" bg="pink.300" p={2} border="2px solid black">
-              $49.99
+              {product.price}
             </Text>
           </GridItem>
 
           {/* Deskripsi */}
           <GridItem colSpan={2}>
             <Text fontSize="sm" color="black" border="2px solid black" p={2} bg="white">
-              This is a brief description of the product. It offers amazing features and great value.
+              {product.description}
             </Text>
           </GridItem>
         </Grid>
