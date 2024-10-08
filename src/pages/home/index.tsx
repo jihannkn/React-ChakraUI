@@ -1,9 +1,23 @@
-import { Box, Button, Flex, Heading, Stack, Text, Grid, GridItem, Image, ChakraProvider, Spinner, Alert } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Stack,
+  Text,
+  Grid,
+  GridItem,
+  Image,
+  ChakraProvider,
+  Spinner,
+  Alert,
+} from "@chakra-ui/react";
 import { FiArrowRight } from "react-icons/fi";
 import ProductCard from "../../components/elements/ProductCard";
 import { useState } from "react";
 import { useProducts } from "../../features/product";
 import Pagination from "../../components/elements/Pagination";
+import Footer from "../../components/fragments/dashboard/footer";
 
 export default function Home() {
   const [page, setPage] = useState(1);
@@ -32,9 +46,10 @@ export default function Home() {
       </Flex>
     );
   }
+
   return (
     <ChakraProvider>
-      <Box bg="#f3f4f6" height="100vh" display="flex" alignItems="center" position="relative" px={8}>
+      <Box bg="#f3f4f6" minHeight="100vh" display="flex" alignItems="center" position="relative" px={8} py={12}>
         {/* Grid Container */}
         <Grid
           templateColumns={{ base: "1fr", md: "1fr 1fr" }}
@@ -135,45 +150,50 @@ export default function Home() {
       </Box>
       
       <Box pt={14} px={4} bg="#f3f4f6">
-      {/* Heading */}
-      <Heading 
-        as="h1" 
-        fontSize="2.3rem" 
-        fontWeight="bold" 
-        mb={4} 
-        textAlign="center"
-      >
-        Our Products
-      </Heading>
+        {/* Heading */}
+        <Heading 
+          as="h1" 
+          fontSize="2.3rem" 
+          fontWeight="bold" 
+          mb={4} 
+          textAlign="center"
+        >
+          Our Products
+        </Heading>
 
-      {/* Product Grid */}
-      <Grid 
-        templateColumns={{
-          base: "repeat(1, 1fr)",  // For small screens (mobile)
-          sm: "repeat(2, 1fr)",    // For small devices
-          md: "repeat(3, 1fr)",    // For medium devices
-          lg: "repeat(4, 1fr)",    // For large devices
-          xl: "repeat(5, 1fr)",    // For extra-large devices
-        }} 
-        gap={3}
-      >
-        {data?.data?.products.length > 0 ? (
-          data.data.products.map((product) => (
-            <GridItem key={product.id}>
-              <ProductCard product={product} />
-            </GridItem>
-          ))
-        ) : (
-          <Text fontSize="xl" color="red.500">
-            No Products Available
-          </Text>
-        )}
-      </Grid>
-    </Box>
+        {/* Product Grid */}
+        <Grid 
+          templateColumns={{
+            base: "repeat(1, 1fr)",  // For small screens (mobile)
+            sm: "repeat(2, 1fr)",    // For small devices
+            md: "repeat(3, 1fr)",    // For medium devices
+            lg: "repeat(4, 1fr)",    // For large devices
+            xl: "repeat(5, 1fr)",    // For extra-large devices
+          }} 
+          gap={3}
+        >
+          {data?.data?.products.length > 0 ? (
+            data.data.products.map((product) => (
+              <GridItem key={product.id}>
+                <ProductCard product={product} />
+              </GridItem>
+            ))
+          ) : (
+            <Text fontSize="xl" color="red.500">
+              No Products Available
+            </Text>
+          )}
+        </Grid>
+      </Box>
 
       {/* Pagination Component */}
-      <Box>
+      <Box my={8} px={4}>
         <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+      </Box>
+
+      {/* Footer Component */}
+      <Box mt={16} bg="#f3f4f6" px={4} py={8}>
+        <Footer />
       </Box>
     </ChakraProvider>
   );
