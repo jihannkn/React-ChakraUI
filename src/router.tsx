@@ -14,6 +14,7 @@ import Register from './pages/auth/register';
 import AuthLayout from './components/layouts/AuthLayout';
 import DashboardLayout from './components/layouts/DashboardLayout';
 import Dashboard from './pages/dashboard';
+import Shopingcard from './pages/home/Shopingcard';
 
 const router = createBrowserRouter([
     {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
                 index: true,
                 element: <Home />,
             },
+            {
+                path: "shoping-cart/:id",
+                element: <Shopingcard/>
+            }
         ],
     },
     {
